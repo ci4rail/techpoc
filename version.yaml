@@ -30,7 +30,7 @@ job=buildingblock-version:
   mounts:
     - mount-buildingblock-gitversion-source-dir
     - mount-buildingblock-gitversion-gen-dir
-  sources: "./"
-  artifact: "gen/gitversion/"
+  sources: "{fs.projectdir}"
+  artifact: "{fs.projectdir}/gen/gitversion/"
   env:
     - "USERID={user.uid}"
