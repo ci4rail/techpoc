@@ -1,0 +1,11 @@
+#general
+build
+gen
+.*
+
+#dobi build tool
+.dobi
+
+
+
+

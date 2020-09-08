@@ -1,0 +1,37 @@
+# ===================================================
+# meta infos
+# ===================================================
+
+meta:
+  project: bb-buildingblock
+  include:
+  - dobi.yaml
+  - version.yaml
+
+# ===================================================
+# alias
+# ===================================================
+
+alias=version:
+  tasks:
+  - bb-buildingblock-version
+  annotations:
+    description: "[alias] bb-buildingblock-version"
+
+alias=build:
+  tasks:
+  - bb-buildingblock-build
+  annotations:
+    description: "[alias] bb-buildingblock-build"
+  
+alias=deploy:
+  tasks:
+  - bb-buildingblock-deploy
+  annotations:
+    description: "[alias] bb-buildingblock-deploy"
+  
+alias=test: 
+  tasks:
+  - bb-buildingblock-test
+  annotations: 
+    description: "[alias] bb-buildingblock-test"
