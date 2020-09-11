@@ -31,13 +31,13 @@ RUN apt-get update \
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-COPY prepare.sh /usr/local/bin/prepare.sh
+COPY scripts/prepare.sh /usr/local/bin/prepare.sh
 RUN chmod +x /usr/local/bin/prepare.sh
 
-COPY build.sh /usr/local/bin/build.sh
+COPY scripts/build.sh /usr/local/bin/build.sh
 RUN chmod +x /usr/local/bin/build.sh
 
-COPY image_list.json /etc/image_list.json
+COPY config/image_list.json /etc/image_list.json
 
 WORKDIR /workdir
 
