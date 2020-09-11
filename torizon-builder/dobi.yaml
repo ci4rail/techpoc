@@ -29,17 +29,29 @@ job=prepare-build:
 job=build-torizon-core-docker:
     use: image-torizon-builder
     depends: [ prepare-build ]
-    command: bash -c 'cd ${WORK_DIR}/${DISTRIBUTION} && . ./setup-environment; bitbake ${BITBAKE_TARGET}'
+    command: /usr/local/bin/build.sh
     interactive: true
     mounts: [ torizon-build-dir ]
     env:
         - USERID={user.uid}
         - WORK_DIR=/workdir
-        - BUILD_DIR=build-torizon
         - DISTRIBUTION=torizon
-        - BRANCH=zeus
         - MACHINE=verdin-imx8mm
-        - BITBAKE_TARGET=torizon-core-docker
-        - MANIFEST_REPO=https://github.com/ci4rail/toradex-torizon-manifest
+        - TARGET=torizon-core-docker
     annotations:
       description: "build-torizon-core-docker"
+
+job=bash-torizon-core-docker:
+    use: image-torizon-builder
+    depends: [ prepare-build ]
+    command: bash -c 'cd ${WORK_DIR}/${DISTRIBUTION} && . ./setup-environment; bash'
+    interactive: true
+    mounts: [ torizon-build-dir ]
+    env:
+        - USERID={user.uid}
+        - WORK_DIR=/workdir
+        - DISTRIBUTION=torizon
+        - MACHINE=verdin-imx8mm
+        - TARGET=torizon-core-docker
+    annotations:
+      description: "cli build-torizon-core-docker"      

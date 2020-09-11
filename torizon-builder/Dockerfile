@@ -34,6 +34,8 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 COPY prepare.sh /usr/local/bin/prepare.sh
 RUN chmod +x /usr/local/bin/prepare.sh
 
+COPY build.sh /usr/local/bin/build.sh
+RUN chmod +x /usr/local/bin/build.sh
 
 COPY image_list.json /etc/image_list.json
 

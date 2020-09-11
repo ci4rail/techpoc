@@ -7,7 +7,7 @@ meta:
   include:
   - dobi.yaml
   - version.yaml
-  - torizon-builder/torizon.yaml
+  - torizon-builder/dobi.yaml
 
 # ===================================================
 # alias
