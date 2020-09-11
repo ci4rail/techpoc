@@ -1,9 +1,17 @@
 # ===================================================
 # mounts
 # ===================================================
-mount=torizon-build-dir:
-    bind: build/torizon
+mount=torizon-work-dir:
+    bind: build/torizon-work
     path: /workdir
+
+mount=torizon-build-dir:
+    bind: build/torizon-build
+    path: /build
+
+mount=torizon-install-dir:
+    bind: install/torizon
+    path: /install
 
 # ===================================================
 # images
@@ -20,13 +28,18 @@ image=image-torizon-builder:
 # ===================================================
 job=prepare-build:
     use: image-torizon-builder
-    command: /usr/local/bin/prepare.sh
+    # command: /usr/local/bin/prepare.sh
+    command: bash
     mounts: 
         - torizon-build-dir
+        - torizon-work-dir
     working-dir: /workdir
     env:
         - USERID={user.uid}    
         - WORK_DIR=/workdir
+        - BUILDDIR=/build
+        - DL_DIR=/download
+        - SSTATE_DIR=/sstate-cache
         - BUILD_DIR=build-torizon
         - DISTRIBUTION=torizon
         - BRANCH=zeus
@@ -40,6 +53,11 @@ job=build-torizon-core-docker:
         - prepare-build
     mounts: 
         - torizon-build-dir
+        - torizon-work-dir
+    sources: 
+        - build/torizon/torizon/layers/*
+    artifact: 
+        - ${WORK_DIR}/${DISTRIBUTION}/${BUILD_DIR}/deploy/images/${MACHINE}/*
     env:
         - USERID={user.uid}
         - WORK_DIR=/workdir
@@ -47,17 +65,40 @@ job=build-torizon-core-docker:
         - MACHINE=verdin-imx8mm
         - TARGET=torizon-core-docker
 
+job=install-torizon-core-docker:
+    use: image-torizon-builder
+    command: bash -c "cp -rv ${WORK_DIR}/${DISTRIBUTION}/${BUILD_DIR}/deploy/images/${MACHINE}/ /install"
+    depends: 
+        - build-torizon-core-docker
+    mounts: 
+        - torizon-work-dir
+        - torizon-build-dir
+        - torizon-install-dir
+    sources: 
+        - ${WORK_DIR}/${DISTRIBUTION}/${BUILD_DIR}/deploy/images/${MACHINE}/*
+    artifact: 
+        - /install/*
+    env:
+        - USERID={user.uid}    
+        - WORK_DIR=/workdir
+        - BUILD_DIR=build-torizon
+        - DISTRIBUTION=torizon
+        - MACHINE=verdin-imx8mm
+
 job=bash-torizon-core-docker:
     use: image-torizon-builder
-    command: bash -c 'cd ${WORK_DIR}/${DISTRIBUTION} && . ./setup-environment; bash'
-    depends: 
-        - prepare-build 
+    # command: bash -c 'cd ${WORK_DIR}/${DISTRIBUTION} && . ./setup-environment; bash'
+    command: bash
     mounts: 
+        - torizon-work-dir
         - torizon-build-dir 
+        - torizon-install-dir
     interactive: true
     env:
         - USERID={user.uid}
         - WORK_DIR=/workdir
+        # - BUILDDIR=/build
+        - BUILD_DIR=build-torizon
         - DISTRIBUTION=torizon
         - MACHINE=verdin-imx8mm
         - TARGET=torizon-core-docker

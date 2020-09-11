@@ -10,7 +10,7 @@ alias=techpoc-version:
 
 alias=techpoc-build:
   tasks: 
-    - build-torizon-core-docker
+    - install-torizon-core-docker
   annotations:
     description: "-> build all content"
 
