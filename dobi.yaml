@@ -2,23 +2,24 @@
 # alias
 # ===================================================
 
-alias=bb-buildingblock-version:
+alias=techpoc-version:
   tasks:
   - buildingblock-version
   annotations:
     description: "-> generate version informations (auto called by dobi.sh)"
 
-alias=bb-buildingblock-build:
-  tasks: []
+alias=techpoc-build:
+  tasks: 
+    - build-torizon-core-docker
   annotations:
-    description: "-> build all content (not implemented yet)"
+    description: "-> build all content"
 
-alias=bb-buildingblock-deploy:
+alias=techpoc-deploy:
   tasks: []
   annotations:
     description: "-> deploy all content (not implemented yet)"
 
-alias=bb-buildingblock-test: 
+alias=techpoc-test: 
   tasks: []
   annotations: 
     description: "-> test all content (not implemented yet)"

@@ -3,7 +3,7 @@
 # ===================================================
 
 meta:
-  project: bb-buildingblock
+  project: techpoc
   include:
   - dobi.yaml
   - version.yaml
@@ -15,24 +15,24 @@ meta:
 
 alias=version:
   tasks:
-  - bb-buildingblock-version
+  - techpoc-version
   annotations:
-    description: "[alias] bb-buildingblock-version"
+    description: "[alias] techpoc-version"
 
 alias=build:
   tasks:
-  - bb-buildingblock-build
+  - techpoc-build
   annotations:
-    description: "[alias] bb-buildingblock-build"
+    description: "[alias] techpoc-build"
   
 alias=deploy:
   tasks:
-  - bb-buildingblock-deploy
+  - techpoc-deploy
   annotations:
-    description: "[alias] bb-buildingblock-deploy"
+    description: "[alias] techpoc-deploy"
   
 alias=test: 
   tasks:
-  - bb-buildingblock-test
+  - techpoc-test
   annotations: 
-    description: "[alias] bb-buildingblock-test"
+    description: "[alias] techpoc-test"

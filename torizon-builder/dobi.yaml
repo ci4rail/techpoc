@@ -1,7 +1,13 @@
+# ===================================================
+# mounts
+# ===================================================
 mount=torizon-build-dir:
     bind: build/torizon
     path: /workdir
 
+# ===================================================
+# images
+# ===================================================
 image=image-torizon-builder:
     image: ci4rail/torizon-builder
     context: torizon-builder
@@ -9,11 +15,14 @@ image=image-torizon-builder:
     annotations:
       description: "build image-torizon-builder"
 
+# ===================================================
+# jobs
+# ===================================================
 job=prepare-build:
     use: image-torizon-builder
     command: /usr/local/bin/prepare.sh
-    interactive: true
-    mounts: [ torizon-build-dir ]
+    mounts: 
+        - torizon-build-dir
     working-dir: /workdir
     env:
         - USERID={user.uid}    
@@ -23,30 +32,29 @@ job=prepare-build:
         - BRANCH=zeus
         - MACHINE=verdin-imx8mm
         - MANIFEST_REPO=https://github.com/ci4rail/toradex-torizon-manifest
-    annotations:
-      description: "prepare torizon build (sync repos, ...)"
 
 job=build-torizon-core-docker:
     use: image-torizon-builder
-    depends: [ prepare-build ]
     command: /usr/local/bin/build.sh
-    interactive: true
-    mounts: [ torizon-build-dir ]
+    depends: 
+        - prepare-build
+    mounts: 
+        - torizon-build-dir
     env:
         - USERID={user.uid}
         - WORK_DIR=/workdir
         - DISTRIBUTION=torizon
         - MACHINE=verdin-imx8mm
         - TARGET=torizon-core-docker
-    annotations:
-      description: "build-torizon-core-docker"
 
 job=bash-torizon-core-docker:
     use: image-torizon-builder
-    depends: [ prepare-build ]
     command: bash -c 'cd ${WORK_DIR}/${DISTRIBUTION} && . ./setup-environment; bash'
+    depends: 
+        - prepare-build 
+    mounts: 
+        - torizon-build-dir 
     interactive: true
-    mounts: [ torizon-build-dir ]
     env:
         - USERID={user.uid}
         - WORK_DIR=/workdir
@@ -54,4 +62,4 @@ job=bash-torizon-core-docker:
         - MACHINE=verdin-imx8mm
         - TARGET=torizon-core-docker
     annotations:
-      description: "cli build-torizon-core-docker"      
+      description: "interactive shell for building torizon-core-docker"      
