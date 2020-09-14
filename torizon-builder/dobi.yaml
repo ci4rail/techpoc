@@ -36,6 +36,8 @@ job=prepare-build-torizon-core-docker:
         - BRANCH=zeus
         - MACHINE=verdin-imx8mm
         - MANIFEST_REPO=https://github.com/ci4rail/toradex-torizon-manifest
+    annotations:
+        description: "prepare build-torizon-core-docker (sync repos, accept EULA)"
 
 job=build-torizon-core-docker:
     use: image-torizon-builder
