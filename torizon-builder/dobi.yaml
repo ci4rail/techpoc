@@ -47,6 +47,7 @@ job=build-torizon-core-docker:
     env:
         - USERID={user.uid}
         - WORK_DIR=/workdir
+        - BUILD_DIR=build-torizon
         - DISTRIBUTION=torizon
         - MACHINE=verdin-imx8mm
         - TARGET=torizon-core-docker
@@ -80,8 +81,11 @@ job=bash-torizon-core-docker:
     env:
         - USERID={user.uid}
         - WORK_DIR=/workdir
+        - BUILD_DIR=build-torizon
         - DISTRIBUTION=torizon
         - MACHINE=verdin-imx8mm
         - TARGET=torizon-core-docker
+        - BRANCH=zeus
+        - MANIFEST_REPO=https://github.com/ci4rail/toradex-torizon-manifest
     annotations:
       description: "interactive shell for building torizon-core-docker"      
