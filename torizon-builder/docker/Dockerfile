@@ -1,5 +1,8 @@
 FROM ubuntu:18.04
-LABEL MAINTAINER Armin Schlegel, Ci4Rail <armin.schlegel@ci4rail.com>
+LABEL maintainer="info@ci4rail.de"
+LABEL description="This is a builder image for torizon yocto"
+LABEL vendor="Ci4Rail"
+LABEL uri="https://github.com/ci4rail/techpoc"
 
 # bitbake requires a utf8 filesystem encoding
 ENV LANG en_US.UTF-8
