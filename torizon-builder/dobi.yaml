@@ -10,7 +10,7 @@ mount=torizon-build-dir:
 # ===================================================
 image=image-torizon-builder:
     image: ci4rail/torizon-builder
-    context: torizon-builder
+    context: torizon-builder/docker
     tags: [ "{env.GitVersion_BranchVersion}" ]
     annotations:
       description: "build image-torizon-builder"
@@ -18,7 +18,7 @@ image=image-torizon-builder:
 # ===================================================
 # jobs
 # ===================================================
-job=prepare-build:
+job=prepare-build-torizon-core-docker:
     use: image-torizon-builder
     command: /usr/local/bin/prepare.sh
     mounts: 
@@ -36,8 +36,6 @@ job=prepare-build:
 job=build-torizon-core-docker:
     use: image-torizon-builder
     command: /usr/local/bin/build.sh
-    depends: 
-        - prepare-build
     mounts: 
         - torizon-build-dir
     env:
@@ -46,12 +44,15 @@ job=build-torizon-core-docker:
         - DISTRIBUTION=torizon
         - MACHINE=verdin-imx8mm
         - TARGET=torizon-core-docker
+    sources: 
+        - build/torizon/torizon/layers/
+    artifact: 
+        - build/torizon/torizon/build-torizon/deploy/images/verdin-imx8mm/
+
 
 job=bash-torizon-core-docker:
     use: image-torizon-builder
     command: bash -c 'cd ${WORK_DIR}/${DISTRIBUTION} && . ./setup-environment; bash'
-    depends: 
-        - prepare-build 
     mounts: 
         - torizon-build-dir 
     interactive: true
