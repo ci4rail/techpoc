@@ -5,6 +5,10 @@ mount=torizon-build-dir:
     bind: build/torizon
     path: /workdir
 
+mount=torizon-install-dir:
+    bind: install/torizon
+    path: /install
+
 # ===================================================
 # images
 # ===================================================
@@ -49,12 +53,27 @@ job=build-torizon-core-docker:
     artifact: 
         - build/torizon/torizon/build-torizon/deploy/images/verdin-imx8mm/
 
+job=install-torizon-core-docker:
+    use: image-torizon-builder
+    command: bash -c "cp -rv /workdir/torizon/build-torizon/deploy/images/verdin-imx8mm /install/torizon/"
+    depends:
+        - build-torizon-core-docker
+    mounts: 
+        - torizon-build-dir
+        - torizon-install-dir
+    env:
+        - USERID={user.uid}
+    sources: 
+        - build/torizon/torizon/build-torizon/deploy/images/verdin-imx8mm/
+    artifact: 
+        - install/torizon/verdin-imx8mm/
 
 job=bash-torizon-core-docker:
     use: image-torizon-builder
     command: bash -c 'cd ${WORK_DIR}/${DISTRIBUTION} && . ./setup-environment; bash'
     mounts: 
         - torizon-build-dir 
+        - torizon-install-dir
     interactive: true
     env:
         - USERID={user.uid}

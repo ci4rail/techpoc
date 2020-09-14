@@ -15,7 +15,8 @@ alias=techpoc-build:
     description: "-> build all content"
 
 alias=techpoc-deploy:
-  tasks: []
+  tasks: 
+    - install-torizon-core-docker
   annotations:
     description: "-> deploy all content (not implemented yet)"
 
