@@ -21,9 +21,11 @@ Defined technologies and processes are:
 
 ## Local build and deploy
 
-To build and deploy the toradex image, simply call the appropriate dobi resource.
+To build and deploy the toradex image, simply call the appropriate dobi resources.
 
 ```bash
 ./dobi.sh prepare-build-torizon-core-docker
 ./dobi.sh deploy
 ```
+
+*Note: the seperated prepare and build/deploy steps are used to let the user decide which sources should be build, e.g. if the user has modifications those should be build. Another prepare step will resync will upstream repos.*
