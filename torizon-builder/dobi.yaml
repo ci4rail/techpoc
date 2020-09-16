@@ -1,0 +1,94 @@
+# ===================================================
+# mounts
+# ===================================================
+mount=torizon-build-dir:
+    bind: build/torizon
+    path: /workdir
+
+mount=torizon-install-dir:
+    bind: install/torizon
+    path: /install
+
+# ===================================================
+# images
+# ===================================================
+image=image-torizon-builder:
+    image: ci4rail/torizon-builder
+    context: torizon-builder/docker
+    tags: [ "{env.GitVersion_BranchVersion}" ]
+    annotations:
+      description: "build image-torizon-builder"
+
+# ===================================================
+# jobs
+# ===================================================
+job=prepare-build-torizon-core-docker:
+    use: image-torizon-builder
+    command: /usr/local/bin/prepare.sh
+    mounts: 
+        - torizon-build-dir
+    working-dir: /workdir
+    env:
+        - USERID={user.uid}    
+        - WORK_DIR=/workdir
+        - BUILD_DIR=build-torizon
+        - DISTRIBUTION=torizon
+        - BRANCH=zeus
+        - MACHINE=verdin-imx8mm
+        - MANIFEST_REPO=https://github.com/ci4rail/toradex-torizon-manifest
+    annotations:
+        description: "prepare build-torizon-core-docker (sync repos, accept EULA)"
+
+job=build-torizon-core-docker:
+    use: image-torizon-builder
+    command: /usr/local/bin/build.sh
+    mounts: 
+        - torizon-build-dir
+    env:
+        - USERID={user.uid}
+        - WORK_DIR=/workdir
+        - BUILD_DIR=build-torizon
+        - DISTRIBUTION=torizon
+        - MACHINE=verdin-imx8mm
+        - TARGET=torizon-core-docker
+    sources: 
+        - build/torizon/torizon/layers/
+    artifact: 
+        - build/torizon/torizon/build-torizon/deploy/images/verdin-imx8mm/
+
+job=install-torizon-core-docker:
+    use: image-torizon-builder
+    command: bash -c "cp -r /workdir/torizon/build-torizon/deploy/images/verdin-imx8mm/*Tezi*.tar /install/ && tar xf *Tezi*.tar"
+    working-dir: /install
+    depends:
+        - build-torizon-core-docker
+    mounts: 
+        - torizon-build-dir
+        - torizon-install-dir
+    env:
+        - USERID={user.uid}
+    sources: 
+        - build/torizon/torizon/build-torizon/deploy/images/verdin-imx8mm/*Tezi*.tar
+    artifact: 
+        - install/torizon/*Tezi*.tar
+
+job=bash-torizon-core-docker:
+    use: image-torizon-builder
+    command: bash -c 'cd ${WORK_DIR}/${DISTRIBUTION} && . ./setup-environment; bash'
+    mounts: 
+        - torizon-build-dir 
+        - torizon-install-dir
+    interactive: true
+    env:
+        - USERID={user.uid}
+        - WORK_DIR=/workdir
+        - BUILD_DIR=build-torizon
+        - DISTRIBUTION=torizon
+        - MACHINE=verdin-imx8mm
+        - TARGET=torizon-core-docker
+        - DISTRIBUTION=torizon
+        - BRANCH=zeus
+        - MACHINE=verdin-imx8mm
+        - MANIFEST_REPO=https://github.com/ci4rail/toradex-torizon-manifest
+    annotations:
+      description: "interactive shell for building torizon-core-docker"      

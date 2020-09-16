@@ -3,12 +3,12 @@
 # ===================================================
 
 mount=mount-buildingblock-gitversion-source-dir:
-  bind: "{fs.projectdir}"
+  bind: .
   path: /git
   read-only: false # needs to be read/write to work correctly!
 
 mount=mount-buildingblock-gitversion-gen-dir:
-  bind: "{fs.projectdir}/gen/gitversion"
+  bind: gen/gitversion
   path: /gen
   read-only: false
 
@@ -30,7 +30,7 @@ job=buildingblock-version:
   mounts:
     - mount-buildingblock-gitversion-source-dir
     - mount-buildingblock-gitversion-gen-dir
-  sources: "{fs.projectdir}"
-  artifact: "{fs.projectdir}/gen/gitversion/"
+  sources: .
+  artifact: /gen/gitversion/
   env:
     - "USERID={user.uid}"
