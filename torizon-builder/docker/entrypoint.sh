@@ -10,9 +10,9 @@ chown -R user:user ${WORK_DIR}
 
 # Configure Git if not configured
 if [ ! $(git config --global --get user.email) ]; then
-    gosu user 'git config --global user.email "user@example.com"'
-    gosu user 'git config --global user.name "user"'
-    gosu user 'git config --global color.ui false'
+    gosu user git config --global user.email "user@example.com"
+    gosu user git config --global user.name "user"
+    gosu user git config --global color.ui false
 fi
 
 exec gosu user "$@"
