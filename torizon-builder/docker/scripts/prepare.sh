@@ -51,13 +51,13 @@ fi # Do not sync automatically if repo is setup already
 source setup-environment
 
 # Accept Freescale/NXP EULA
-if ! grep -q ACCEPT_FSL_EULA ${WORK_DIR}/${DISTRIBUTION}/${BUILD_DIR}/conf/local.conf 
+if ! grep -q ACCEPT_FSL_EULA ${BUILD_DIR}/conf/local.conf 
 then
-    echo 'ACCEPT_FSL_EULA="1"' >> ${WORK_DIR}/${DISTRIBUTION}/${BUILD_DIR}/conf/local.conf
+    echo 'ACCEPT_FSL_EULA="1"' >> ${BUILD_DIR}/conf/local.conf
 fi
 
 # Create image_list.json for Toradex Easy Installer
-if [ ! -f ${WORK_DIR}/${DISTRIBUTION}/${BUILD_DIR}/image_list.json ]
+if [ ! -f ${BUILD_DIR}/image_list.json ]
 then
-    cp /etc/image_list.json ${WORK_DIR}/${DISTRIBUTION}/${BUILD_DIR}/image_list.json
+    cp /etc/image_list.json ${BUILD_DIR}/image_list.json
 fi
