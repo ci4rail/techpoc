@@ -11,25 +11,25 @@ ENV LC_ALL en_US.UTF-8
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# OSF PPA for additional dependencies and newer packages
-RUN apt-get update \
-	&& apt-get install -y --no-install-recommends \
-	   software-properties-common \
-	&& add-apt-repository ppa:osf-maintainers/ppa \
-	&& apt-get clean \
-	&& rm -rf /var/lib/apt/lists/*
+# # OSF PPA for additional dependencies and newer packages
+# RUN apt-get update \
+# 	&& apt-get install -y --no-install-recommends \
+# 	   software-properties-common \
+# 	&& add-apt-repository ppa:osf-maintainers/ppa \
+# 	&& apt-get clean \
+# 	&& rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update \
-	&& apt-get install -y --no-install-recommends \
-		android-tools-fsutils ca-certificates chrpath cpio diffstat \
-		file gawk g++ iproute2 iputils-ping less libmagickwand-dev \
-		libmath-prime-util-perl libsdl1.2-dev libssl-dev locales \
-		openjdk-8-jre openssh-client perl-modules python2.7 python-requests python3 \
-		repo sudo texinfo vim-tiny wget whiptail libelf-dev gosu \
-	&& apt-get autoremove -y \
-	&& apt-get clean \
-	&& rm -rf /var/lib/apt/lists/* \
-	&& locale-gen en_US.UTF-8
+# RUN apt-get update \
+# 	&& apt-get install -y --no-install-recommends \
+# 		android-tools-fsutils ca-certificates chrpath cpio diffstat \
+# 		file gawk g++ iproute2 iputils-ping less libmagickwand-dev \
+# 		libmath-prime-util-perl libsdl1.2-dev libssl-dev locales \
+# 		openjdk-8-jre openssh-client perl-modules python2.7 python-requests python3 \
+# 		repo sudo texinfo vim-tiny wget whiptail libelf-dev gosu \
+# 	&& apt-get autoremove -y \
+# 	&& apt-get clean \
+# 	&& rm -rf /var/lib/apt/lists/* \
+# 	&& locale-gen en_US.UTF-8
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
