@@ -23,10 +23,11 @@ if [ -z "${TARGET}" ]; then
 fi
 
 pwd
-ls -la
+ls -laR
 
-mkdir -p ${WORK_DIR}/${DISTRIBUTION}
+#mkdir -p ${WORK_DIR}/${DISTRIBUTION}
 cd ${WORK_DIR}/${DISTRIBUTION}
 
+echo "before setup-environment"
 . ./setup-environment
 bitbake ${TARGET}
