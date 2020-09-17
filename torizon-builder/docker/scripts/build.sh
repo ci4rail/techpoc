@@ -25,9 +25,7 @@ fi
 pwd
 ls -laR
 
-#mkdir -p ${WORK_DIR}/${DISTRIBUTION}
 cd ${WORK_DIR}/${DISTRIBUTION}
 
-echo "before setup-environment"
 . ./setup-environment
 bitbake ${TARGET}

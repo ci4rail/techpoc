@@ -40,6 +40,9 @@ RUN chmod +x /usr/local/bin/prepare.sh
 COPY scripts/build.sh /usr/local/bin/build.sh
 RUN chmod +x /usr/local/bin/build.sh
 
+COPY scripts/prepare_and_build.sh /usr/local/bin/prepare_and_build.sh
+RUN chmod +x /usr/local/bin/prepare_and_build.sh
+
 COPY config/image_list.json /etc/image_list.json
 
 WORKDIR /workdir
