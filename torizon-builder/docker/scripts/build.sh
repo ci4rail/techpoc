@@ -22,9 +22,6 @@ if [ -z "${TARGET}" ]; then
   exit 1
 fi
 
-pwd
-ls -laR
-
 cd ${WORK_DIR}/${DISTRIBUTION}
 
 . ./setup-environment
