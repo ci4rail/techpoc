@@ -3,14 +3,16 @@
 # -----------------------------
 ## Defines the name for the project
 name: techpoc
-## Specify the namespace for the building block image. This gets prefixed before <prefix>/<name>
-### example: docker_namespace: "harbor/ci4rail" results in using "harbor/ci4rail/<name>"
-### "ci4rail" means using the docker hub, e.b. "ci4rail/<name>"
-docker_registry: "harbor.lan:8080"
-
-docker_namespace: "ci4rail"
+## Specify the registry and namespace for the project.
+# If using a private registry you must specify `docker_registry` with "<host:port>".
+# Note that your private registy's hostname MUST contain at least one '.' e.g. `registry.local`.
+# If using dockerhub leave empty, e.g. "".
+# Specify the `docker_namespace` with either `<name>` for using docker hub or `/<name>` for the repository
+# on your local registry.
+docker_registry: "harbor.local:8080"
+docker_namespace: "/ci4rail"
 ## Specifies insecure docker registries, format "host:port" or "ip:port", leave empty if unused, e.g. ""
-destination_insecure_registry: "harbor.lan:8080"
+destination_insecure_registry: "harbor.local:8080"
 ## Specify if 'latest' tags are built for `git_branch`
 release_as_latest: true
 
