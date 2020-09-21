@@ -11,6 +11,12 @@ resources:
       repository: amazon/aws-cli
       tag: 2.0.22
 
+  - name: image-curl
+    type: docker-image
+    source:
+      repository: cfmanteiga/alpine-bash-curl-jq
+      tag: latest
+
   - name: s3-gitversion
     type: s3
     source:
@@ -102,6 +108,32 @@ jobs:
             trigger: true
             params:
               unpack: true
+          - get: image-curl
+      - task: check-or-create-project-on-docker-registry
+        image: image-curl
+        config:
+          platform: linux
+          run:
+            path: /bin/bash
+            args:
+              - -c
+              - |
+                CREATE_PROJECT=1
+                PROJECT=((docker_namespace))
+                PROJECT_TO_CREATE=$(echo ${PROJECT} | tr -d '/"')
+                curl --silent -k "http://((docker_registry))/api/v2.0/projects" -H "accept: application/json" | jq '.[]?.name' > /tmp/projects.txt
+
+                while read line; do
+                  l=$(echo ${line} | tr -d '/"')
+                  if [[ "${PROJECT}" == *"${l}"* ]]; then
+                    echo Harbor: Docker registry found project ${PROJECT_TO_CREATE}. Nothing to do.
+                    CREATE_PROJECT=0
+                  fi
+                done < /tmp/projects.txt
+                if [ $CREATE_PROJECT -eq 1 ]; then
+                  echo Harbor: Project ${PROJECT_TO_CREATE} does not exist on docker registry. Creating.
+                  curl --silent -u ((registry_user)):((registry_password)) -X POST "http://((docker_registry))/api/v2.0/projects" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"project_name\": \"${PROJECT_TO_CREATE}\", \"storage_limit\": -1, \"metadata\": { \"public\": \"true\" }}"
+                fi
       - put: image-torizon-builder
         params:
           build: source/torizon-builder/docker/
