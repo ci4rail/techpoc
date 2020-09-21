@@ -1,4 +1,5 @@
 resources:
+  # Upstream docker images
   - name: image-bb-gitversion-tool
     type: docker-image
     source:
@@ -17,6 +18,16 @@ resources:
       repository: cfmanteiga/alpine-bash-curl-jq
       tag: latest
 
+  # Own docker images
+  - name: image-torizon-builder
+    type: docker-image
+    source:
+      repository: ((docker_registry))((docker_namespace))/torizon-builder
+      username: ((registry_user))
+      password: ((registry_password))
+      insecure_registries: ["((docker_registry))"]
+
+  # S3 buckets
   - name: s3-gitversion
     type: s3
     source:
@@ -27,6 +38,17 @@ resources:
       secret_access_key: ((s3_secret_key))
       disable_ssl: ((s3_skip_ssl_verification))
 
+  - name: resource-boot-package
+    type: s3
+    source:
+      bucket: ((name))
+      regexp: ((torizon_yocto_machine))-((torizon_yocto_machine))-Tezi(.*).tar
+      access_key_id: ((s3_access_key))
+      secret_access_key: ((s3_secret_key))
+      endpoint: ((s3_endpoint))
+      disable_ssl: ((s3_skip_ssl_verification))
+
+  # Git sources
   - name: source
     type: git
     source:
@@ -36,13 +58,12 @@ resources:
       branch: ((git_branch))
       skip_ssl_verification: ((git_skip_ssl_verification))
 
-  - name: image-torizon-builder
-    type: docker-image
+  - name: torizon-manifest
+    type: git
     source:
-      repository: ((docker_registry))((docker_namespace))/torizon-builder
-      username: ((registry_user))
-      password: ((registry_password))
-      insecure_registries: ["((docker_registry))"]
+      uri: ((torizon_git_source))
+      branch: ((torizon_yocto_branch))
+      paths: ["default.xml"]
 
 jobs:
   - name: generate-gitversion-and-put-it-on-s3
@@ -140,3 +161,37 @@ jobs:
           dockerfile: source/torizon-builder/docker/Dockerfile
           tag_as_latest: ((release_as_latest))
           tag_file: s3-gitversion/gitversion/plain/BranchVersion
+
+  - name: build-torizon-image
+    plan:
+      - in_parallel:
+          - get: image-torizon-builder
+            trigger: true
+          - get: torizon-manifest
+            trigger: true
+      - task: build-torizon
+        image: image-torizon-builder
+        config:
+          platform: linux
+          outputs:
+            - name: workdir-torizon
+          run:
+            path: /bin/bash
+            args:
+              - -exc
+              - |
+                entrypoint.sh /usr/local/bin/prepare_and_build.sh
+          params:
+            USERID: 9001
+            BRANCH: ((torizon_yocto_branch))
+            MACHINE: ((torizon_yocto_machine))
+            WORK_DIR: workdir-torizon
+            BUILD_DIR: build-torizon
+            DISTRIBUTION: torizon
+            TARGET: ((torizon_yocto_target))
+            MANIFEST_REPO: ((torizon_git_source))
+
+      - put: resource-boot-package
+        params:
+          file: workdir-torizon/torizon/build-torizon/deploy/images/((torizon_yocto_machine))/((torizon_yocto_target))-((torizon_yocto_machine))-Tezi*.tar
+          acl: public-read

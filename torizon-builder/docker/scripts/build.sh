@@ -22,7 +22,6 @@ if [ -z "${TARGET}" ]; then
   exit 1
 fi
 
-mkdir -p ${WORK_DIR}/${DISTRIBUTION}
 cd ${WORK_DIR}/${DISTRIBUTION}
 
 . ./setup-environment
