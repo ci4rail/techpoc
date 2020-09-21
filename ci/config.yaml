@@ -25,6 +25,17 @@ git_branch: master
 ## This enables/disables ssl verification of the git resource
 git_skip_ssl_verification: false
 
+# Torizon configuration
+# ----------------
+## repository of manifest
+torizon_git_source: https://github.com/ci4rail/toradex-torizon-manifest.git
+## Yocto branch to use (e.g. zeus, dunfell...)
+torizon_yocto_branch: zeus
+## Machine to build yocto for (e.g. verdin-imx8mm)
+torizon_yocto_machine: verdin-imx8mm
+## Target image to build (target for bitbake)
+torizon_yocto_target: torizon-core-docker
+
 # S3 configuration
 # ----------------
 ## Specify the S3 endpoint URI
