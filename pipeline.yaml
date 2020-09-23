@@ -12,7 +12,7 @@ resources:
       repository: amazon/aws-cli
       tag: 2.0.22
 
-  - name: image-curl
+  - name: image-bash-utils
     type: docker-image
     source:
       repository: cfmanteiga/alpine-bash-curl-jq
@@ -130,38 +130,56 @@ jobs:
             trigger: true
             params:
               unpack: true
-          - get: image-curl
-      - task: check-or-create-project-on-docker-registry
-        image: image-curl
-        config:
-          platform: linux
-          run:
-            path: /bin/bash
-            args:
-              - -c
-              - |
-                CREATE_PROJECT=1
-                PROJECT=((docker_namespace))
-                PROJECT_TO_CREATE=$(echo ${PROJECT} | tr -d '/"')
-                curl --silent -k "http://((docker_registry))/api/v2.0/projects" -H "accept: application/json" | jq '.[]?.name' > /tmp/projects.txt
+          - get: image-bash-utils
+      - in_parallel:
+          - task: check-or-create-project-on-docker-registry
+            image: image-bash-utils
+            config:
+              platform: linux
+              run:
+                path: /bin/bash
+                args:
+                  - -c
+                  - |
+                    CREATE_PROJECT=1
+                    PROJECT=((docker_namespace))
+                    PROJECT_TO_CREATE=$(echo ${PROJECT} | tr -d '/"')
+                    curl --silent -k "http://((docker_registry))/api/v2.0/projects" -H "accept: application/json" | jq '.[]?.name' > /tmp/projects.txt
 
-                while read line; do
-                  l=$(echo ${line} | tr -d '/"')
-                  if [[ "${PROJECT}" == *"${l}"* ]]; then
-                    echo Harbor: Docker registry found project ${PROJECT_TO_CREATE}. Nothing to do.
-                    CREATE_PROJECT=0
-                  fi
-                done < /tmp/projects.txt
-                if [ $CREATE_PROJECT -eq 1 ]; then
-                  echo Harbor: Project ${PROJECT_TO_CREATE} does not exist on docker registry. Creating.
-                  curl --silent -u '((registry_user)):((registry_password))' -X POST "http://((docker_registry))/api/v2.0/projects" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"project_name\": \"${PROJECT_TO_CREATE}\", \"storage_limit\": -1, \"metadata\": { \"public\": \"true\" }}"
-                fi
+                    while read line; do
+                      l=$(echo ${line} | tr -d '/"')
+                      if [[ "${PROJECT}" == *"${l}"* ]]; then
+                        echo Harbor: Docker registry found project ${PROJECT_TO_CREATE}. Nothing to do.
+                        CREATE_PROJECT=0
+                      fi
+                    done < /tmp/projects.txt
+                    if [ $CREATE_PROJECT -eq 1 ]; then
+                      echo Harbor: Project ${PROJECT_TO_CREATE} does not exist on docker registry. Creating.
+                      curl --silent -u '((registry_user)):((registry_password))' -X POST "http://((docker_registry))/api/v2.0/projects" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"project_name\": \"${PROJECT_TO_CREATE}\", \"storage_limit\": -1, \"metadata\": { \"public\": \"true\" }}"
+                    fi
+          - task: prepare-build-args
+            image: image-bash-utils
+            config:
+              platform: linux
+              inputs:
+                - name: s3-gitversion
+              outputs:
+                - name: build-args
+              run:
+                path: /bin/bash
+                args:
+                  - -c
+                  - |
+                    echo Generating build args:
+                    jq --arg key0 'TORIZON_BUILDER_VERSION' --arg value0 $(cat s3-gitversion/gitversion/plain/BranchVersion) '. | .[$key0]=$value0' <<< '{}' > build-args/args.json
+                    cat build-args/args.json
       - put: image-torizon-builder
         params:
           build: source/torizon-builder/docker/
           dockerfile: source/torizon-builder/docker/Dockerfile
           tag_as_latest: ((release_as_latest))
           tag_file: s3-gitversion/gitversion/plain/BranchVersion
+          build_args_file: build-args/args.json
 
   - name: build-torizon-image
     plan:

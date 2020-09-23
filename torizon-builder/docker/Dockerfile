@@ -10,24 +10,22 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG TORIZON_BUILDER_VERSION=unversioned-dont-use
-ENV TORIZON_BUILDER_VERSION=${TORIZON_BUILDER_VERSION}
 
 # OSF PPA for additional dependencies and newer packages
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
-	   software-properties-common \
+	software-properties-common \
 	&& add-apt-repository ppa:osf-maintainers/ppa \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
-		android-tools-fsutils ca-certificates chrpath cpio diffstat \
-		file gawk g++ iproute2 iputils-ping less libmagickwand-dev \
-		libmath-prime-util-perl libsdl1.2-dev libssl-dev locales \
-		openjdk-8-jre openssh-client perl-modules python2.7 python-requests python3 \
-		repo sudo texinfo vim-tiny wget whiptail libelf-dev gosu \
+	android-tools-fsutils ca-certificates chrpath cpio diffstat \
+	file gawk g++ iproute2 iputils-ping less libmagickwand-dev \
+	libmath-prime-util-perl libsdl1.2-dev libssl-dev locales \
+	openjdk-8-jre openssh-client perl-modules python2.7 python-requests python3 \
+	repo sudo texinfo vim-tiny wget whiptail libelf-dev gosu \
 	&& apt-get autoremove -y \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/* \
@@ -48,5 +46,8 @@ RUN chmod +x /usr/local/bin/prepare_and_build.sh
 COPY config/image_list.json /etc/image_list.json
 
 WORKDIR /workdir
+
+ARG TORIZON_BUILDER_VERSION=unversioned-dont-use
+ENV TORIZON_BUILDER_VERSION=${TORIZON_BUILDER_VERSION}
 
 ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
