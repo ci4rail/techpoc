@@ -56,7 +56,7 @@ resources:
       # private key currently not needed because repo is public
       # private_key: ((privatekey))
       branch: ((git_branch))
-      paths: [((git_path))]
+      paths: ((git_paths))
       skip_ssl_verification: ((git_skip_ssl_verification))
 
   - name: torizon-manifest
