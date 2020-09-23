@@ -44,7 +44,7 @@ To build and deploy the toradex image, simply call the appropriate dobi resource
 
 To build and deploy the toradex image, you must set the pipeline to the concourse CI server.
 
-First download `fly` from your concoruse server. The following example uses a local concourse server that is reachable at https://localhost:9000.
+First download `fly` from your concourse server. The following example uses a local concourse server that is reachable at https://localhost:9000.
 
 ```bash
 sudo wget http://localhost:9090/api/v1/cli?arch=amd64&platform=linux -O /usr/local/bin/fly

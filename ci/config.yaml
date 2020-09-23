@@ -9,10 +9,10 @@ name: techpoc
 # If using dockerhub leave empty, e.g. "".
 # Specify the `docker_namespace` with either `<name>` for using docker hub or `/<name>` for the repository
 # on your local registry.
-docker_registry: "harbor.local:8080"
+docker_registry: "devserver1.ci4rail.com:8080"
 docker_namespace: "/ci4rail"
 ## Specifies insecure docker registries, format "host:port" or "ip:port", leave empty if unused, e.g. ""
-destination_insecure_registry: "harbor.local:8080"
+destination_insecure_registry: "devserver1.ci4rail.com:8080"
 ## Specify if 'latest' tags are built for `git_branch`
 release_as_latest: true
 
@@ -28,7 +28,7 @@ git_skip_ssl_verification: false
 # S3 configuration
 # ----------------
 ## Specify the S3 endpoint URI
-s3_endpoint: http://minio:9000
+s3_endpoint: http://devserver1.ci4rail.com:9000
 ## This enables/disables the ssl verification for the S3 endpoint
 s3_skip_ssl_verification: true
 
