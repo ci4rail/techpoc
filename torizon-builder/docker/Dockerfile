@@ -10,6 +10,8 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG TORIZON_BUILDER_VERSION=unversioned-dont-use
+ENV TORIZON_BUILDER_VERSION=${TORIZON_BUILDER_VERSION}
 
 # OSF PPA for additional dependencies and newer packages
 RUN apt-get update \
