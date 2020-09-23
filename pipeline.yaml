@@ -42,7 +42,7 @@ resources:
     type: s3
     source:
       bucket: ((name))
-      regexp: ((torizon_yocto_machine))-((torizon_yocto_machine))-Tezi(.*).tar
+      regexp: ((torizon_yocto_target))-((torizon_yocto_machine))-Tezi(.*).tar
       access_key_id: ((s3_access_key))
       secret_access_key: ((s3_secret_key))
       endpoint: ((s3_endpoint))
