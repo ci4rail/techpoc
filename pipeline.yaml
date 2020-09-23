@@ -166,7 +166,6 @@ jobs:
     plan:
       - in_parallel:
           - get: image-torizon-builder
-            trigger: true
           - get: torizon-manifest
             trigger: true
       - task: build-torizon
