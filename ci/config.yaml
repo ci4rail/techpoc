@@ -1,0 +1,46 @@
+---
+# Project configuration
+# -----------------------------
+## Defines the name for the project
+name: techpoc
+## Specify the registry and namespace for the project.
+# If using a private registry you must specify `docker_registry` with "<host:port>".
+# Note that your private registy's hostname MUST contain at least one '.' e.g. `registry.local`.
+# If using dockerhub leave empty, e.g. "".
+# Specify the `docker_namespace` with either `<name>` for using docker hub or `/<name>` for the repository
+# on your local registry.
+docker_registry: "devserver1.ci4rail.com:8080"
+docker_namespace: "/ci4rail"
+## Specifies insecure docker registries, format "host:port" or "ip:port", leave empty if unused, e.g. ""
+destination_insecure_registry: "devserver1.ci4rail.com:8080"
+## Specify if 'latest' tags are built for `git_branch`
+release_as_latest: true
+
+# Git configuration
+# -----------------
+## Specify the git repository to work with
+git_source: https://github.com/ci4rail/techpoc.git
+## Specify the git branch to work with
+git_branch: master
+## Specify the git path to monitor
+git_path: torizon-builder/docker
+## This enables/disables ssl verification of the git resource
+git_skip_ssl_verification: false
+
+# S3 configuration
+# ----------------
+## Specify the S3 endpoint URI
+s3_endpoint: http://devserver1.ci4rail.com:9000
+## This enables/disables the ssl verification for the S3 endpoint
+s3_skip_ssl_verification: true
+
+# Torizon configuration
+# ----------------
+## repository of manifest
+torizon_git_source: https://github.com/ci4rail/toradex-torizon-manifest.git
+## Yocto branch to use (e.g. zeus, dunfell...)
+torizon_yocto_branch: zeus
+## Machine to build yocto for (e.g. verdin-imx8mm)
+torizon_yocto_machine: verdin-imx8mm
+## Target image to build (target for bitbake)
+torizon_yocto_target: torizon-core-docker
