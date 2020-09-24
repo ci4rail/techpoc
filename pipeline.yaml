@@ -38,7 +38,7 @@ resources:
       secret_access_key: ((s3_secret_key))
       disable_ssl: ((s3_skip_ssl_verification))
 
-  - name: resource-boot-package
+  - name: s3-boot-package
     type: s3
     source:
       bucket: ((name))
@@ -231,7 +231,8 @@ jobs:
             TARGET: ((torizon_yocto_target))
             MANIFEST_REPO: ((torizon_git_source))
 
-      - put: resource-boot-package
+      - put: s3-boot-package
+      - put: s3-boot-package
         params:
           file: workdir-torizon/torizon/build-torizon/deploy/images/((torizon_yocto_machine))/((torizon_yocto_target))-((torizon_yocto_machine))-Tezi*.tar
           acl: public-read
