@@ -102,6 +102,7 @@ job=bash-torizon-core-docker:
   mounts:
     - torizon-build-dir
     - torizon-install-dir
+    - torizon-manifest-version
   interactive: true
   env:
     - USERID={user.uid}
