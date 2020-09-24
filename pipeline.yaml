@@ -184,21 +184,43 @@ jobs:
   - name: build-torizon-image
     plan:
       - in_parallel:
+          - get: image-bb-gitversion-tool
           - get: image-torizon-builder
           - get: torizon-manifest
             trigger: true
-      - task: build-torizon
-        image: image-torizon-builder
+      - task: generate-manifest-version
+        image: image-bb-gitversion-tool
         config:
           platform: linux
+          inputs:
+            - name: torizon-manifest
           outputs:
-            - name: workdir-torizon
+            - name: gitversion-manifest
           run:
             path: /bin/bash
             args:
               - -exc
               - |
-                entrypoint.sh /usr/local/bin/prepare_and_build.sh
+                entrypoint.sh && 
+                jq empty gitversion-manifest/json/gitversion.json &&
+                cat gitversion-manifest/json/gitversion.json
+          params:
+            GIT_PATH: torizon-manifest
+            GEN_PATH: gitversion-manifest
+      - task: build-torizon
+        image: image-torizon-builder
+        config:
+          platform: linux
+          inputs:
+            - name: gitversion-manifest
+          outputs:
+            - name: workdir-torizon
+          run:
+            path: /bin/bash
+            args:
+              - -ec
+              - |
+                entrypoint.sh bash -c "source gitversion-manifest/env/gitversion.env && /usr/local/bin/prepare_and_build.sh"
           params:
             USERID: 9001
             BRANCH: ((torizon_yocto_branch))
