@@ -9,6 +9,10 @@ mount=torizon-install-dir:
   bind: install/torizon
   path: /install
 
+mount=torizon-manifest-version:
+  bind: gen/torizon-manifest-version
+  path: /gen
+
 # ===================================================
 # images
 # ===================================================
@@ -24,9 +28,10 @@ image=image-torizon-builder:
 # ===================================================
 # jobs
 # ===================================================
-job=prepare-build-torizon-core-docker:
+# Preparation steps for build
+job=prepare-sync-repos:
   use: image-torizon-builder
-  command: /usr/local/bin/prepare.sh
+  command: bash -c "/usr/local/bin/prepare.sh && cd /workdir/ && if [ ! -d /workdir/repo-manifest ]; then git clone -b ${BRANCH} ${MANIFEST_REPO} repo-manifest; fi"
   mounts:
     - torizon-build-dir
   working-dir: /workdir
@@ -38,14 +43,30 @@ job=prepare-build-torizon-core-docker:
     - BRANCH=zeus
     - MACHINE=verdin-imx8mm
     - MANIFEST_REPO=https://github.com/ci4rail/toradex-torizon-manifest
+
+job=prepare-generate-manifest-version:
+  use: image-buildingblock-gitversion
+  mounts:
+    - torizon-build-dir
+    - torizon-manifest-version
+  env:
+    - USERID={user.uid}
+    - GIT_PATH=/workdir/repo-manifest
+
+alias=prepare-build-torizon-core-docker:
+  tasks:
+    - prepare-sync-repos
+    - prepare-generate-manifest-version
   annotations:
     description: "prepare build-torizon-core-docker (sync repos, accept EULA)"
 
+# Build and install jobs
 job=build-torizon-core-docker:
   use: image-torizon-builder
-  command: /usr/local/bin/build.sh
+  command: bash -c "source /gen/env/gitversion.env && /usr/local/bin/build.sh"
   mounts:
     - torizon-build-dir
+    - torizon-manifest-version
   env:
     - USERID={user.uid}
     - WORK_DIR=/workdir
@@ -74,6 +95,7 @@ job=install-torizon-core-docker:
   artifact:
     - install/torizon/*Tezi*.tar
 
+# Interactive debug shell job
 job=bash-torizon-core-docker:
   use: image-torizon-builder
   command: bash -c 'cd ${WORK_DIR}/${DISTRIBUTION} && . ./setup-environment; bash'
