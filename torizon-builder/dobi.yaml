@@ -81,7 +81,7 @@ job=build-torizon-core-docker:
 
 job=install-torizon-core-docker:
   use: image-torizon-builder
-  command: bash -c "cp -r /workdir/torizon/build-torizon/deploy/images/verdin-imx8mm/*Tezi*.tar /install/ && tar xf *Tezi*.tar"
+  command: bash -c "ARTIFACT=$(ls /workdir/torizon/build-torizon/deploy/images/verdin-imx8mm/*Tezi*.tar) && cp -r ${ARTIFACT} /install/ && tar xf $(basename ${ARTIFACT})"
   working-dir: /install
   depends:
     - build-torizon-core-docker
