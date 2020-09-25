@@ -232,7 +232,6 @@ jobs:
             MANIFEST_REPO: ((torizon_git_source))
 
       - put: s3-boot-package
-      - put: s3-boot-package
         params:
           file: workdir-torizon/torizon/build-torizon/deploy/images/((torizon_yocto_machine))/((torizon_yocto_target))-((torizon_yocto_machine))-Tezi*.tar
           acl: public-read
