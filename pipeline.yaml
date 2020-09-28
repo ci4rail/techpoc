@@ -12,7 +12,7 @@ resources:
       repository: amazon/aws-cli
       tag: 2.0.22
 
-  - name: image-curl
+  - name: image-bash-utils
     type: docker-image
     source:
       repository: cfmanteiga/alpine-bash-curl-jq
@@ -38,7 +38,7 @@ resources:
       secret_access_key: ((s3_secret_key))
       disable_ssl: ((s3_skip_ssl_verification))
 
-  - name: resource-boot-package
+  - name: s3-boot-package
     type: s3
     source:
       bucket: ((name))
@@ -56,7 +56,7 @@ resources:
       # private key currently not needed because repo is public
       # private_key: ((privatekey))
       branch: ((git_branch))
-      paths: [((git_path))]
+      paths: ((git_paths))
       skip_ssl_verification: ((git_skip_ssl_verification))
 
   - name: torizon-manifest
@@ -130,57 +130,97 @@ jobs:
             trigger: true
             params:
               unpack: true
-          - get: image-curl
-      - task: check-or-create-project-on-docker-registry
-        image: image-curl
-        config:
-          platform: linux
-          run:
-            path: /bin/bash
-            args:
-              - -c
-              - |
-                CREATE_PROJECT=1
-                PROJECT=((docker_namespace))
-                PROJECT_TO_CREATE=$(echo ${PROJECT} | tr -d '/"')
-                curl --silent -k "http://((docker_registry))/api/v2.0/projects" -H "accept: application/json" | jq '.[]?.name' > /tmp/projects.txt
+          - get: image-bash-utils
+      - in_parallel:
+          - task: check-or-create-project-on-docker-registry
+            image: image-bash-utils
+            config:
+              platform: linux
+              run:
+                path: /bin/bash
+                args:
+                  - -c
+                  - |
+                    CREATE_PROJECT=1
+                    PROJECT=((docker_namespace))
+                    PROJECT_TO_CREATE=$(echo ${PROJECT} | tr -d '/"')
+                    curl --silent -k "http://((docker_registry))/api/v2.0/projects" -H "accept: application/json" | jq '.[]?.name' > /tmp/projects.txt
 
-                while read line; do
-                  l=$(echo ${line} | tr -d '/"')
-                  if [[ "${PROJECT}" == *"${l}"* ]]; then
-                    echo Harbor: Docker registry found project ${PROJECT_TO_CREATE}. Nothing to do.
-                    CREATE_PROJECT=0
-                  fi
-                done < /tmp/projects.txt
-                if [ $CREATE_PROJECT -eq 1 ]; then
-                  echo Harbor: Project ${PROJECT_TO_CREATE} does not exist on docker registry. Creating.
-                  curl --silent -u '((registry_user)):((registry_password))' -X POST "http://((docker_registry))/api/v2.0/projects" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"project_name\": \"${PROJECT_TO_CREATE}\", \"storage_limit\": -1, \"metadata\": { \"public\": \"true\" }}"
-                fi
+                    while read line; do
+                      l=$(echo ${line} | tr -d '/"')
+                      if [[ "${PROJECT}" == *"${l}"* ]]; then
+                        echo Harbor: Docker registry found project ${PROJECT_TO_CREATE}. Nothing to do.
+                        CREATE_PROJECT=0
+                      fi
+                    done < /tmp/projects.txt
+                    if [ $CREATE_PROJECT -eq 1 ]; then
+                      echo Harbor: Project ${PROJECT_TO_CREATE} does not exist on docker registry. Creating.
+                      curl --silent -u '((registry_user)):((registry_password))' -X POST "http://((docker_registry))/api/v2.0/projects" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"project_name\": \"${PROJECT_TO_CREATE}\", \"storage_limit\": -1, \"metadata\": { \"public\": \"true\" }}"
+                    fi
+          - task: prepare-build-args
+            image: image-bash-utils
+            config:
+              platform: linux
+              inputs:
+                - name: s3-gitversion
+              outputs:
+                - name: build-args
+              run:
+                path: /bin/bash
+                args:
+                  - -c
+                  - |
+                    echo Generating build args:
+                    jq --arg key0 'TORIZON_BUILDER_VERSION' --arg value0 $(cat s3-gitversion/gitversion/plain/BranchVersion) '. | .[$key0]=$value0' <<< '{}' > build-args/args.json
+                    cat build-args/args.json
       - put: image-torizon-builder
         params:
           build: source/torizon-builder/docker/
           dockerfile: source/torizon-builder/docker/Dockerfile
           tag_as_latest: ((release_as_latest))
           tag_file: s3-gitversion/gitversion/plain/BranchVersion
+          build_args_file: build-args/args.json
 
   - name: build-torizon-image
     plan:
       - in_parallel:
+          - get: image-bb-gitversion-tool
           - get: image-torizon-builder
           - get: torizon-manifest
             trigger: true
-      - task: build-torizon
-        image: image-torizon-builder
+      - task: generate-manifest-version
+        image: image-bb-gitversion-tool
         config:
           platform: linux
+          inputs:
+            - name: torizon-manifest
           outputs:
-            - name: workdir-torizon
+            - name: gitversion-manifest
           run:
             path: /bin/bash
             args:
               - -exc
               - |
-                entrypoint.sh /usr/local/bin/prepare_and_build.sh
+                entrypoint.sh && 
+                jq empty gitversion-manifest/json/gitversion.json &&
+                cat gitversion-manifest/json/gitversion.json
+          params:
+            GIT_PATH: torizon-manifest
+            GEN_PATH: gitversion-manifest
+      - task: build-torizon
+        image: image-torizon-builder
+        config:
+          platform: linux
+          inputs:
+            - name: gitversion-manifest
+          outputs:
+            - name: workdir-torizon
+          run:
+            path: /bin/bash
+            args:
+              - -ec
+              - |
+                entrypoint.sh bash -c "source gitversion-manifest/env/gitversion.env && /usr/local/bin/prepare_and_build.sh"
           params:
             USERID: 9001
             BRANCH: ((torizon_yocto_branch))
@@ -191,7 +231,7 @@ jobs:
             TARGET: ((torizon_yocto_target))
             MANIFEST_REPO: ((torizon_git_source))
 
-      - put: resource-boot-package
+      - put: s3-boot-package
         params:
           file: workdir-torizon/torizon/build-torizon/deploy/images/((torizon_yocto_machine))/((torizon_yocto_target))-((torizon_yocto_machine))-Tezi*.tar
           acl: public-read

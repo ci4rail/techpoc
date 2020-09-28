@@ -5,9 +5,9 @@
 meta:
   project: techpoc
   include:
-  - dobi.yaml
-  - version.yaml
-  - torizon-builder/dobi.yaml
+    - dobi.yaml
+    - version.yaml
+    - torizon-builder/dobi.yaml
 
 # ===================================================
 # alias
@@ -15,24 +15,24 @@ meta:
 
 alias=version:
   tasks:
-  - techpoc-version
+    - techpoc-version
   annotations:
     description: "[alias] techpoc-version"
 
 alias=build:
   tasks:
-  - techpoc-build
+    - techpoc-build
   annotations:
     description: "[alias] techpoc-build"
-  
+
 alias=deploy:
   tasks:
-  - techpoc-deploy
+    - techpoc-deploy
   annotations:
     description: "[alias] techpoc-deploy"
-  
-alias=test: 
+
+alias=test:
   tasks:
-  - techpoc-test
-  annotations: 
+    - techpoc-test
+  annotations:
     description: "[alias] techpoc-test"

@@ -22,8 +22,9 @@ release_as_latest: true
 git_source: https://github.com/ci4rail/techpoc.git
 ## Specify the git branch to work with
 git_branch: master
-## Specify the git path to monitor
-git_path: torizon-builder/docker
+## Specify the git paths to monitor
+git_paths:
+  - torizon-builder/docker
 ## This enables/disables ssl verification of the git resource
 git_skip_ssl_verification: false
 
